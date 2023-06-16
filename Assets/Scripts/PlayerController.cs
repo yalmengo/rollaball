@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -12,16 +13,19 @@ public class PlayerController : MonoBehaviour
 
     private int count;
     private Rigidbody rb;
+    private AudioSource audio;
     private float movementX;
     private float movementY;
 
     // Start is called before the first frame update
     void Start() {
         rb = GetComponent<Rigidbody>();
+        audio = GetComponent<AudioSource>();
         count = 0;
 
         SetCountText ();
         winTextObject.SetActive(false);
+        StartCoroutine(sceneLoader());
     }
 
     void OnMove(InputValue movementValue) {
@@ -41,6 +45,7 @@ public class PlayerController : MonoBehaviour
         if (other.gameObject.CompareTag("PickUp")) 
         {
             other.gameObject.SetActive(false);
+            audio.Play();
             count++;
             SetCountText();
         }
@@ -55,4 +60,13 @@ public class PlayerController : MonoBehaviour
             winTextObject.SetActive(true);
 		}
 	}
+
+    IEnumerator sceneLoader()
+    {
+        Debug.Log("Waiting for Player score to be >=12 ");
+        yield return new WaitUntil(() => count >= 12);
+        Debug.Log("Player score is >=12. Loading next Level");
+        yield return new WaitForSeconds(5);
+        SceneManager.LoadScene(0);
+    }
 }
